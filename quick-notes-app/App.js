@@ -19,6 +19,30 @@ import NoteCard from './components/NoteCard';
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [notes, setNotes] = useState(MOCK_NOTES);
+
+  const handleDeleteNote = (id) => {
+    Alert.alert(
+      'Delete Note',
+      'Are you sure you want to delete this note?'
+      [
+        {text : 'Cancel', style : 'cancel'},
+        { 
+          text : 'Delete',
+          style : 'destructive',
+          onPress : () => {
+            const updatedNotes = notes.filter((note) => note.id !== id);
+            setNotes(updatedNotes)
+          }
+        }
+      ]
+    )
+  }
+
+    const handlePressNote = (note) => {
+    Alert.alert('Note Opened', `You opened: "${note.title}"`);
+  };
+
 
   return (
     <SafeAreaView style={styles.container}>
