@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import React, {useState} from 'react';
+NodeCard
 import{
 StyleSheet,
 Text,
@@ -8,10 +9,12 @@ View,
 SafeAreaView,
 TextInput,
 TouchableOpacity,
-StatusBar
+StatusBar,
+FlatList
 }from 'react-native'
 
 import { Plus, Search, Notebook } from 'lucide-react-native';
+import NoteCard from './components/NoteCard';
 
 
 export default function App() {
@@ -24,7 +27,7 @@ export default function App() {
       {/* Header Section */}
       <View style={styles.header}>
         <View style={styles.appTitleContainer}>
-          <Notebook size={24} color="#1E90FF" style={style.titleIcon}/>
+          <Notebook size={24} color="#1E90FF" style={styles.titleIcon}/>
           <Text style={styles.titleText}>QuickNotes</Text>
         </View>
         <Text style={styles.subtitleText}>Capture ideas instantly</Text>
@@ -42,10 +45,18 @@ export default function App() {
         />
       </View>
 
-      {/* Notes Placeholder (We will render the actual list here in Part 2) */}
-      <View style={styles.placeholderContainer}>
-        <Text style={styles.placeholderText}>No notes yet. Tap the button below to add one!</Text>
-      </View>
+      <FlatList
+      data={notes}
+      keyExtractor={(item) => item.id}
+      renderItem={({item}) => (
+         <NoteCard
+           note={item}
+           onDelete={(id) => alert(`Delete note ${id}`)}
+           onPress={() => alert(`Clicked note: ${item.title}`)}
+       />
+      )}
+      contentContainerStyle={styles.listContent}
+      />
 
       {/* Floating Action Button  */}
       <TouchableOpacity
@@ -136,4 +147,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 6,
   },
+    listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 80, // Extra padding at bottom so cards don't hide behind the FAB button
+  },
+
 });
