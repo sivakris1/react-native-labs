@@ -1,6 +1,6 @@
-import { Trash2 } from 'lucide-react-native';
-import React from 'react'
-import { Touchable, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { Trash2, Calendar } from 'lucide-react-native';
 
 const NoteCard = ({note, onDelete, onPress}) => {
   
@@ -22,7 +22,7 @@ const NoteCard = ({note, onDelete, onPress}) => {
             <Text style={styles.title} numberOfLines={1}>
                 {note.title || "untitled"}
             </Text>
-            <TouchableOpacity onDelete={() => onDelete(note.id)} style={styles.deleteButton}>
+            <TouchableOpacity onPress={() => onDelete(note.id)} style={styles.deleteButton}>
                 <Trash2 size={18} color="#FF4757"/>
             </TouchableOpacity>
         </View>
