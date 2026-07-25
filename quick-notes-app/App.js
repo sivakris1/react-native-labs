@@ -1,48 +1,63 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import React, {useState} from 'react';
-NodeCard
-import{
-StyleSheet,
-Text,
-View,
-SafeAreaView,
-TextInput,
-TouchableOpacity,
-StatusBar,
-FlatList
-}from 'react-native'
-
+import React, { useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  Alert,
+  StatusBar
+} from 'react-native';
 import { Plus, Search, Notebook } from 'lucide-react-native';
 import NoteCard from './components/NoteCard';
 
+// 1. Mock notes data
+const MOCK_NOTES = [
+  {
+    id: '1',
+    title: 'Weekly Groceries 🛒',
+    content: 'Milk, Eggs, Bread, Spinach, Avocado, Chicken, Green tea.',
+    color: '#2ED573', // Green
+    createdAt: Date.now() - 1000 * 60 * 60 * 2, // 2 hours ago
+  },
+  {
+    id: '2',
+    title: 'App Idea: Fitness RPG 🏋️‍♂️',
+    content: 'A gym app where workouts level up your avatar. Earn gold for running, strength points for lifting.',
+    color: '#FFA502', // Orange
+    createdAt: Date.now() - 1000 * 60 * 60 * 24, // 1 day ago
+  },
+];
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [notes, setNotes] = useState(MOCK_NOTES);
+  const [notes, setNotes] = useState(MOCK_NOTES); // Initialize with mock notes
 
+  // 2. Delete Note handler
   const handleDeleteNote = (id) => {
     Alert.alert(
       'Delete Note',
-      'Are you sure you want to delete this note?'
+      'Are you sure you want to delete this note?',
       [
-        {text : 'Cancel', style : 'cancel'},
+        { text: 'Cancel', style: 'cancel' },
         { 
-          text : 'Delete',
-          style : 'destructive',
-          onPress : () => {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
             const updatedNotes = notes.filter((note) => note.id !== id);
-            setNotes(updatedNotes)
+            setNotes(updatedNotes);
           }
         }
       ]
-    )
-  }
-
-    const handlePressNote = (note) => {
-    Alert.alert('Note Opened', `You opened: "${note.title}"`);
+    );
   };
 
+  // 3. Open Note handler
+  const handlePressNote = (note) => {
+    Alert.alert('Note Opened', `You opened: "${note.title}"`);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -57,8 +72,8 @@ export default function App() {
         <Text style={styles.subtitleText}>Capture ideas instantly</Text>
       </View>
 
-      {/* Search Bar Section  */}
-       <View style={styles.searchBar}>
+      {/* Search Bar Section */}
+      <View style={styles.searchBar}>
         <Search size={18} color="#8E8E93" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
@@ -69,28 +84,34 @@ export default function App() {
         />
       </View>
 
-      <FlatList
-      data={notes}
-      keyExtractor={(item) => item.id}
-      renderItem={({item}) => (
-         <NoteCard
-           note={item}
-           onDelete={(id) => alert(`Delete note ${id}`)}
-           onPress={() => alert(`Clicked note: ${item.title}`)}
-       />
+      {/* 4. Notes List */}
+      {notes.length === 0 ? (
+        <View style={styles.placeholderContainer}>
+          <Text style={styles.placeholderText}>No notes yet. Tap the button below to add one!</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={notes}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <NoteCard
+              note={item}
+              onDelete={handleDeleteNote}
+              onPress={() => handlePressNote(item)}
+            />
+          )}
+          contentContainerStyle={styles.listContent}
+        />
       )}
-      contentContainerStyle={styles.listContent}
-      />
 
-      {/* Floating Action Button  */}
+      {/* Floating Action Button */}
       <TouchableOpacity
-      style={styles.fab}
-      activeOpacity={0.8}
-      onPress={() => alert('Add Note Clicked!')}
+        style={styles.fab}
+        activeOpacity={0.8}
+        onPress={() => Alert.alert('Add Note', 'We will build the modal in the next step!')}
       >
         <Plus size={28} color='#FFFFFF' />
       </TouchableOpacity>
-
     </SafeAreaView>
   );
 }
@@ -155,6 +176,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 80, // Space so cards don't hide behind the FAB
+  },
   fab: {
     position: 'absolute',
     right: 20,
@@ -171,9 +196,4 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 6,
   },
-    listContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 80, // Extra padding at bottom so cards don't hide behind the FAB button
-  },
-
 });
