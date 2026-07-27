@@ -12,6 +12,9 @@ import {
 } from 'react-native';
 import { Plus, Search, Notebook } from 'lucide-react-native';
 import NoteCard from './components/NoteCard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const STORAGE_KEY = '@quick_notes_data';
 
 // 1. Mock notes data
 const MOCK_NOTES = [
@@ -35,6 +38,44 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [notes, setNotes] = useState(MOCK_NOTES); // Initialize with mock notes
 
+  // 1. LOAD NOTES ON STARTUP:
+
+  React.useEffect(() => {
+    const loadNotesFromDisk = async() => {
+      try {
+        const rawJsonString = await AsyncStorage.getItem(STORAGE_KEY)
+
+        if(rawJsonString !== null){
+          setNotes(JSON.parse(rawJsonString))
+        }
+        else{
+
+        }
+      } catch (error) {
+        Alert.alert('Database Error', 'Failed to load notes from device storage.');
+      }
+    }
+
+    loadNotesFromDisk();
+  })
+
+  // 2. SAVE NOTES HELPER:
+  // when we add or delete notes
+  const saveNotesToDatabase = async(newNotesList) => {
+    try {
+      setNotes(newNotesList)
+
+      //convert the JS array to flat text
+      const flatTextString = JSON.stringify(newNotesList);
+
+      //now write the text string permanently onto the phones storage chip
+      await AsyncStorage.setItem(STORAGE_KEY, flatTextString)
+    } catch (error) {
+      Alert.alert('Database Error', 'Failed to save notes to device storage.');
+    }
+  }
+
+  
   // 2. Delete Note handler
   const handleDeleteNote = (id) => {
     Alert.alert(
