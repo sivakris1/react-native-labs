@@ -75,8 +75,8 @@ export default function App() {
     }
   }
 
-  
-  // 2. Delete Note handler
+
+  // Delete Note handler
   const handleDeleteNote = (id) => {
     Alert.alert(
       'Delete Note',
@@ -88,7 +88,7 @@ export default function App() {
           style: 'destructive',
           onPress: () => {
             const updatedNotes = notes.filter((note) => note.id !== id);
-            setNotes(updatedNotes);
+            saveNotesToDatabase(updatedNotes);
           }
         }
       ]
