@@ -100,6 +100,22 @@ export default function App() {
     Alert.alert('Note Opened', `You opened: "${note.title}"`);
   };
 
+  const handleSaveNote = (noteData) => {
+     const newNote = {
+      id: Math.random().toString(36).substring(2, 9), // Generates a random 7-character ID
+      title: noteData.title,
+      content: noteData.content,
+      color: noteData.color,
+      createdAt: Date.now(), // Unique time in milliseconds
+    };
+
+     const updatedNotes = [newNote, ...notes];
+    
+    // Write the new list permanently to AsyncStorage and RAM state
+    saveNotesToDatabase(updatedNotes);
+  }
+
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0F0F12" />
