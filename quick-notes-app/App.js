@@ -118,6 +118,14 @@ export default function App() {
     saveNotesToDatabase(updatedNotes);
   }
 
+  const filteredNotes = notes.filter((note) => {
+    const titleMatch = note.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const contentMatch = note.content.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return titleMatch || contentMatch;
+  })
+  
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -145,13 +153,13 @@ export default function App() {
       </View>
 
       {/* 4. Notes List */}
-      {notes.length === 0 ? (
+      {filteredNotes.length === 0 ? (
         <View style={styles.placeholderContainer}>
           <Text style={styles.placeholderText}>No notes yet. Tap the button below to add one!</Text>
         </View>
       ) : (
         <FlatList
-          data={notes}
+          data={filteredNotes}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <NoteCard
