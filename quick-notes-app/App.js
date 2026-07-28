@@ -13,6 +13,7 @@ import {
 import { Plus, Search, Notebook } from 'lucide-react-native';
 import NoteCard from './components/NoteCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AddNoteModal from './components/AddNoteModal';
 
 const STORAGE_KEY = '@quick_notes_data';
 
@@ -37,6 +38,8 @@ const MOCK_NOTES = [
 export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [notes, setNotes] = useState(MOCK_NOTES); // Initialize with mock notes
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   // 1. LOAD NOTES ON STARTUP:
 
@@ -165,10 +168,16 @@ export default function App() {
       <TouchableOpacity
         style={styles.fab}
         activeOpacity={0.8}
-        onPress={() => Alert.alert('Add Note', 'We will build the modal in the next step!')}
+        onPress={() => setModalVisible(true)}
       >
         <Plus size={28} color='#FFFFFF' />
       </TouchableOpacity>
+
+      <AddNoteModal
+       visible={modalVisible}
+       onClose={() => setModalVisible(false)}
+       onSave={handleSaveNote}
+      />
     </SafeAreaView>
   );
 }
