@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { Trash2, Calendar } from 'lucide-react-native';
 
 const NoteCard = ({note, onDelete, onPress}) => {
@@ -31,7 +31,12 @@ const NoteCard = ({note, onDelete, onPress}) => {
         {note.content || 'No additional content.'}
       </Text>
 
-        <View style={styles.cardFooter}>
+      {/* 3. Add this photo preview block: */}
+      {note.image && (
+        <Image source={{ uri: note.image }} style={styles.cardImage} />
+      )}
+
+      <View style={styles.cardFooter}>
           <Calendar size={12} color="#8E8E93" style={styles.icon} />
           <Text style={styles.date}>{dateStr}</Text>
       </View>
@@ -86,6 +91,14 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
     fontSize: 11,
   },
+    cardImage: {
+    width: '100%',
+    height: 160,
+    borderRadius: 8,
+    marginBottom: 12,
+    backgroundColor: '#2C2C2E', // Dark grey placeholder while image loads
+  },
+
 });
 
 export default NoteCard
