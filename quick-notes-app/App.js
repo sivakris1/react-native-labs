@@ -1,3 +1,5 @@
+// npx expo start --lan
+
 import React, { useState } from 'react';
 import {
   StyleSheet,
@@ -109,6 +111,7 @@ export default function App() {
       title: noteData.title,
       content: noteData.content,
       color: noteData.color,
+      image: noteData.image,
       createdAt: Date.now(), // Unique time in milliseconds
     };
 
