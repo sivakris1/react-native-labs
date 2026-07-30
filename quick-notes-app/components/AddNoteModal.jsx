@@ -8,66 +8,90 @@ import {
   TouchableOpacity, 
   KeyboardAvoidingView, 
   Platform,
-  ScrollView 
+  ScrollView,
+  Image
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { X, Camera, Trash2 } from 'lucide-react-native';
 
-import {X} from 'lucide-react-native'
-
-const COLORS =  [
+const COLORS = [
   { label: 'Work', value: '#FF4757' },       // Red
   { label: 'Ideas', value: '#FFA502' },      // Orange
   { label: 'Personal', value: '#2ED573' },   // Green
   { label: 'Reminders', value: '#1E90FF' },  // Blue
 ];
 
-export default function AddNoteModal({visible, onClose, onSave}) {
+export default function AddNoteModal({ visible, onClose, onSave }) {
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [selectedColor, setSelectedColor] = useState(COLORS[0].value);
+  const [imageUri, setImageUri] = useState(null); // Local photo URI path
 
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
-    const [selectedColor, setSelectedColor] = useState(COLORS[0].value);
-
-    const handleSave = () => {
-        if(!title.trim() && !content.trim()){
-            alert('Please Write Something before saving!');
-            return;
-        }
-
-        onSave({
-            title : title.trim(),
-            content : content.trim(),
-            color : selectedColor
-        });
-
-         setTitle('');
-         setContent('');
-         setSelectedColor(COLORS[0].value);
-
-         onClose();
+  const takePhoto = async () => {
+    // Request permission from the device
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    
+    if (status !== 'granted') {
+      alert('We need camera permission to attach photos to notes!');
+      return;
     }
 
-    return(
-        <Modal
-          animationType='slide'
-          transparent = {true}
-          visible = {visible}
-          onRequestClose={onClose}
-        >
+    // Launch camera
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+    });
 
-        <KeyboardAvoidingView 
-          behavior = {Platform.OS === 'ios' ? 'padding' : 'height'}
-          style = {styles.overlay}
-        >
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri); // Save the photo path in state
+    }
+  };
 
+  const handleSave = () => {
+    if (!title.trim() && !content.trim()) {
+      alert('Please write something before saving!');
+      return;
+    }
+
+    // Pass all note data (including the image) back to App.js
+    onSave({
+      title: title.trim(),
+      content: content.trim(),
+      color: selectedColor,
+      image: imageUri,
+    });
+
+    // Reset input fields
+    setTitle('');
+    setContent('');
+    setSelectedColor(COLORS[0].value);
+    setImageUri(null);
+
+    onClose();
+  };
+
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.overlay}
+      >
         <View style={styles.modalContent}>
-            {/* Header */}
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Create Note</Text>
-                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                    <X size={20} color="#8E8E93"></X>
-                </TouchableOpacity>
-            </View>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Create Note</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <X size={20} color="#8E8E93" />
+            </TouchableOpacity>
+          </View>
 
-             <ScrollView style={styles.form}>
+          <ScrollView style={styles.form}>
             {/* Title Input */}
             <Text style={styles.label}>Title</Text>
             <TextInput
@@ -78,19 +102,7 @@ export default function AddNoteModal({visible, onClose, onSave}) {
               onChangeText={setTitle}
             />
 
-            {/* Content Input  */}
-            <Text style={styles.label}> Note Details</Text>
-            <TextInput
-              style={styles.contentInput}
-              placeholder="Start writing something amazing..."
-              placeholderTextColor="#8E8E93"
-              multiline
-              textAlignVertical="top"
-              value={content}
-              onChangeText={setContent}
-            />
-
-               {/* Content Input */}
+            {/* Content Input */}
             <Text style={styles.label}>Note Details</Text>
             <TextInput
               style={styles.contentInput}
@@ -101,6 +113,26 @@ export default function AddNoteModal({visible, onClose, onSave}) {
               value={content}
               onChangeText={setContent}
             />
+
+            {/* Photo Section */}
+            <Text style={styles.label}>Attachment</Text>
+            {imageUri ? (
+              <View style={styles.imagePreviewContainer}>
+                <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+                <TouchableOpacity 
+                  style={styles.removeImageButton} 
+                  onPress={() => setImageUri(null)}
+                >
+                  <Trash2 size={16} color="#FF4757" />
+                  <Text style={styles.removeImageText}>Remove Photo</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <TouchableOpacity style={styles.cameraButton} onPress={takePhoto}>
+                <Camera size={20} color="#1E90FF" style={styles.cameraIcon} />
+                <Text style={styles.cameraButtonText}>Take Photo</Text>
+              </TouchableOpacity>
+            )}
 
             {/* Color Picker */}
             <Text style={styles.label}>Category Color</Text>
@@ -119,7 +151,7 @@ export default function AddNoteModal({visible, onClose, onSave}) {
                 </TouchableOpacity>
               ))}
             </View>
-            
+
             {/* Save Button */}
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
               <Text style={styles.saveButtonText}>Save Note</Text>
@@ -128,14 +160,14 @@ export default function AddNoteModal({visible, onClose, onSave}) {
         </View>
       </KeyboardAvoidingView>
     </Modal>
-    )
+  );
 }
 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    justifyContent: 'flex-end', // Aligns modal to the bottom of the screen
+    justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: '#1C1C1E',
@@ -228,5 +260,53 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  cameraButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#2C2C2E',
+    borderRadius: 10,
+    paddingVertical: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#3A3A3C',
+    borderStyle: 'dashed',
+  },
+  cameraIcon: {
+    marginRight: 8,
+  },
+  cameraButtonText: {
+    color: '#1E90FF',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  imagePreviewContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2C2C2E',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 16,
+  },
+  imagePreview: {
+    width: 80,
+    height: 60,
+    borderRadius: 6,
+    backgroundColor: '#1C1C1E',
+  },
+  removeImageButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 15,
+    padding: 8,
+    backgroundColor: 'rgba(255, 71, 87, 0.1)',
+    borderRadius: 8,
+  },
+  removeImageText: {
+    color: '#FF4757',
+    fontSize: 13,
+    fontWeight: '600',
+    marginLeft: 6,
   },
 });
