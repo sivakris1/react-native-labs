@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   StyleSheet, 
   Text, 
@@ -8,10 +8,56 @@ import {
   TouchableOpacity, 
   SafeAreaView 
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Calendar, Star, ChevronLeft, Heart } from 'lucide-react-native';
+
+const WATCHLIST_KEY = '@cineverse_watchlist';
 
 export default function DetailsScreen({ route, navigation }) {
   const { movie } = route.params;
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  useEffect(() => {
+    const checkFavoriteStatus = async() => {
+      try {
+        const rawWatchList = await AsyncStorage.getItem(WATCHLIST_KEY);
+        if(rawWatchList !== null){
+          const watchlistArray = JSON.parse(rawWatchList);
+
+          const exists = watchlistArray.some(item => item.id === movie.id);
+          setIsFavorite(exists);
+        }
+      } catch (error) {
+        console.error('Failed to load watchlist status');
+      }
+    }
+
+    checkFavoriteStatus();
+  },[movie.id])
+
+  const toggleFavorite = async() => {
+    try {
+      const rawWatchlist = await AsyncStorage.getItem(WATCHLIST_KEY);
+      let watchlistArray = [];
+
+      if (rawWatchlist !== null) {
+        watchlistArray = JSON.parse(rawWatchlist);
+      }
+
+      if(isFavorite){
+        watchlistArray = watchlistArray.filter(item => item.id !== movie.id);
+        setIsFavorite(false);
+      }
+      else{
+        watchlistArray.push(movie);
+        setIsFavorite(true);
+      }
+
+      await AsyncStorage.setItem(WATCHLIST_KEY, JSON.stringify(watchlistArray))
+    } catch (error) {
+      Alert.alert('Database Error', 'Failed to update watchlist.');
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
