@@ -55,7 +55,7 @@ export default function DiscoverScreen({ navigation }) {
         style={styles.card}
         activeOpacity={0.8}
         // When tapped, navigate to the Details screen and pass the movie object!
-        onPress={() => alert(`Opening Details for: ${item.title}`)} 
+        onPress={() => navigation.navigate('MovieDetails', { movie : item})} 
       >
         <Image source={{ uri: item.poster }} style={styles.poster} />
         <View style={styles.cardInfo}>
